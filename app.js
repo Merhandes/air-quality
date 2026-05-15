@@ -18,7 +18,6 @@ async function startBridge() {
   try {
     await mongoClient.connect();
     console.log("✅ Terhubung ke MongoDB Atlas!");
-
     const db = mongoClient.db("monitoring_udara");
     const collection = db.collection("logs");
 
@@ -26,15 +25,14 @@ async function startBridge() {
 
     mqttClient.on("connect", () => {
       console.log("✅ Terhubung ke HiveMQ Cloud!");
-      // Subscribe ke topic yang sama dengan di ESP32
-      mqttClient.subscribe("kualitas/udara/sensor1");
+      // Disamakan dengan nama topik yang di-publish oleh ESP32 Anda
+      mqttClient.subscribe("esp32/sensor_data");
     });
 
     mqttClient.on("message", async (topic, message) => {
       try {
         const data = JSON.parse(message.toString());
         data.timestamp = new Date(); // Tambahkan waktu saat data masuk
-
         await collection.insertOne(data);
         console.log("🚀 Data tersimpan ke Cloud:", data);
       } catch (err) {
