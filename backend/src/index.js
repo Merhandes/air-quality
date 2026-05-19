@@ -5,13 +5,13 @@ import connectDB from "./config/database.js";
 import app from "./app.js";
 import startMqttBridge from "./config/mqtt.js";
 
-// Penangkap error agar server tidak crash karena isu unhandled silaman
+// Amankan server dari crash unhandled
 process.on("uncaughtException", (err) => {
-  console.error("💥 CRASH PREVENTED - Uncaught Exception:", err.stack);
+  console.error("💥 SYSTEM CRASH - Uncaught Exception:", err.stack);
 });
 process.on("unhandledRejection", (reason, promise) => {
   console.error(
-    "💥 CRASH PREVENTED - Unhandled Rejection at:",
+    "💥 SYSTEM CRASH - Unhandled Rejection at:",
     promise,
     "reason:",
     reason
@@ -20,39 +20,35 @@ process.on("unhandledRejection", (reason, promise) => {
 
 const startServer = async () => {
   try {
-    // 1. Hubungkan ke MongoDB Atlas
-    await connectDB();
-
-    // 2. Jalankan MQTT bridge setelah MongoDB terhubung
-    startMqttBridge();
-
-    app.on("error", (err) => {
-      console.error("Server error:", err);
-      throw err;
-    });
-
-    // 3. Jalankan Server Express pada port dinamis Railway
+    // 1. LANGKAH UTAMA: Jalankan Server Express Terlebih Dahulu!
+    // Ini mengunci port 8080 milik Railway secara instan agar jaringan luar mendeteksinya aktif
     const PORT = process.env.PORT || 8000;
-    app.listen(PORT, "0.0.0.0", () => {
+    const server = app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 server is running on port ${PORT}`);
     });
 
-    // ====================================================================
-    // 🔒 PENGUNCI EVENT LOOP ABADI (Mencegah Node.js Exit / Stopping Container)
-    // ====================================================================
-    console.log(
-      "🔒 Event Loop Lock Activated - Keeping process alive forever..."
-    );
+    server.on("error", (err) => {
+      console.error("❌ Express Server Error:", err);
+    });
 
+    // 2. Hubungkan ke MongoDB Atlas setelah server web aman menggantung
+    await connectDB();
+
+    // 3. JALANKAN MQTT BRIDGE DI AKHIR PROSES (BACKGROUND TASK)
+    // Dengan menaruhnya di sini, proses TLS HiveMQ tidak akan menyumbat port Express Anda
+    console.log("📡 Inisialisasi MQTT Bridge...");
+    startMqttBridge();
+
+    // 4. Kunci Event Loop secara rekursif agar kontainer tidak menutup paksa prosesnya
     const keepAlive = () => {
-      // Melakukan pemicuan loop kecil setiap 10 detik agar CPU kontainer
-      // tahu bahwa Node.js Anda sedang bekerja aktif dan menolak perintah shutdown.
       setTimeout(keepAlive, 10000);
     };
     keepAlive();
+    console.log(
+      "🔒 Event Loop Lock Activated - Keeping process alive forever..."
+    );
   } catch (error) {
-    console.log("❌ MongoDB connection failed", error);
-    // Beri jeda agar server tidak restart terlalu cepat jika DB error
+    console.error("❌ Critical startServer failed:", error.message);
     setTimeout(() => process.exit(1), 5000);
   }
 };
