@@ -1,36 +1,35 @@
 import mqtt from "mqtt";
-import Log from "../models/log.model.js"; // Pastikan menggunakan ekstensi .js
+import Log from "../models/log.model.js";
 
 const startMqttBridge = () => {
   const mqttClient = mqtt.connect(process.env.MQTT_URL, {
     username: process.env.MQTT_USERNAME,
     password: process.env.MQTT_PASSWORD,
+    rejectUnauthorized: false, // Wajib untuk server cloud Linux
+    connectTimeout: 30000, // Batas waktu tunggu koneksi 30 detik
+    reconnectPeriod: 5000, // Jika putus, coba hubungkan kembali setiap 5 detik
   });
 
   mqttClient.on("connect", () => {
     console.log("📡 MQTT Bridge Connected to HiveMQ Cloud!");
-    mqttClient.subscribe("esp32/sensor_data");
+    mqttClient.subscribe("esp32/sensor_data", (err) => {
+      if (err) console.error("❌ Gagal subscribe topik:", err.message);
+    });
+  });
+
+  // Wajib menangkap event error agar koneksi tidak meruntuhkan server Node.js Anda
+  mqttClient.on("error", (err) => {
+    console.error("❌ MQTT Client Error:", err.message);
   });
 
   mqttClient.on("message", async (topic, message) => {
     try {
-      // Mengubah kiriman text ESP32 menjadi format JSON Objek
-      const dataString = message.toString();
-      let dataJson;
-
-      try {
-        dataJson = JSON.parse(dataString);
-      } catch {
-        dataJson = { raw_text: dataString }; // Jika ESP32 kirim text biasa (bukan JSON)
-      }
-
-      // Simpan menggunakan Mongoose Model
-      const newLog = new Log({ value: dataJson });
+      const dataJson = JSON.parse(message.toString());
+      const newLog = new Log(dataJson);
       await newLog.save();
-
       console.log("🚀 New data stored to Atlas:", dataJson);
     } catch (err) {
-      console.log("❌ Mongoose save error:", err.message);
+      console.log("❌ Failed to parse MQTT message:", err.message);
     }
   });
 };
