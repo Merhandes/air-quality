@@ -14,23 +14,17 @@ const startMqttBridge = () => {
 
   mqttClient.on("message", async (topic, message) => {
     try {
-      // Mengubah kiriman text ESP32 menjadi format JSON Objek
-      const dataString = message.toString();
-      let dataJson;
+      const dataJson = JSON.parse(message.toString());
 
-      try {
-        dataJson = JSON.parse(dataString);
-      } catch {
-        dataJson = { raw_text: dataString }; // Jika ESP32 kirim text biasa (bukan JSON)
-      }
+      // Hapus timestamp kiriman ESP32 jika masih terbawa, agar tidak merusak validasi database
+      delete dataJson.timestamp;
 
-      // Simpan menggunakan Mongoose Model
-      const newLog = new Log({ value: dataJson });
+      const newLog = new Log(dataJson);
       await newLog.save();
 
-      console.log("🚀 New data stored to Atlas:", dataJson);
+      console.log("🚀 Data ESP32 berhasil disimpan rata ke MongoDB Atlas!");
     } catch (err) {
-      console.log("❌ Mongoose save error:", err.message);
+      console.log("❌ Gagal parsing / simpan data MQTT:", err.message);
     }
   });
 };
