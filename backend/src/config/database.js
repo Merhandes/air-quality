@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
+import { DB_NAME } from "./constants.js"; // Import nama database global Anda
 
 const connectDB = async () => {
   try {
-    const connectionInstance = await mongoose.connect(process.env.MONGO_URI);
-    console.log(
-      `\n ✅ MongoDB connected !!! HOST: ${connectionInstance.connection.host}`
+    const connectionInstance = await mongoose.connect(
+      `${process.env.MONGO_URI}/${DB_NAME}?appName=tes`
     );
-    return connectionInstance; // WAJIB: Mengembalikan objek koneksi agar bisa dibaca di index.js
+    console.log(`\n MongoDB connected !!!
+        ${connectionInstance.connection.host}`);
   } catch (error) {
-    console.error("❌ MongoDB connection failed:", error.message);
-    return null;
+    console.log("MongoDB connection failed"), error;
+    process.exit(1);
   }
 };
 
