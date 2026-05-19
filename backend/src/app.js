@@ -11,6 +11,10 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 // 1. Sajikan folder frontend statis (Mundur 2 folder dari src)
 app.use(express.static(path.join(__dirname, "../../frontend")));
 
