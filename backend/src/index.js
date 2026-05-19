@@ -3,9 +3,7 @@ import connectDB from "./config/database.js";
 import app from "./app.js";
 import startMqttBridge from "./config/mqtt.js";
 
-dotenv.config({
-  path: "../.env",
-});
+dotenv.config();
 
 const startServer = async () => {
   try {
