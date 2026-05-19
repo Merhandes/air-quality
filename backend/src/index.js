@@ -3,7 +3,7 @@ import connectDB from "./config/database.js";
 import app from "./app.js";
 import startMqttBridge from "./config/mqtt.js";
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.RAILWAY_ENVIRONMENT_NAME !== "production") {
   dotenv.config();
 }
 
