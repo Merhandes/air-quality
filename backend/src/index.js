@@ -3,9 +3,20 @@ import connectDB from "./config/database.js";
 import app from "./app.js";
 import startMqttBridge from "./config/mqtt.js";
 
-if (process.env.RAILWAY_ENVIRONMENT_NAME !== "production") {
-  dotenv.config();
-}
+dotenv.config();
+
+// WAJIB UNTUK DEBUGGING CLOUD: Menangkap semua error siluman agar tercetak di log Railway
+process.on("uncaughtException", (err) => {
+  console.error("💥 SYSTEM CRASH - Uncaught Exception:", err.stack);
+});
+process.on("unhandledRejection", (reason, promise) => {
+  console.error(
+    "💥 SYSTEM CRASH - Unhandled Rejection at:",
+    promise,
+    "reason:",
+    reason
+  );
+});
 
 const startServer = async () => {
   try {
