@@ -1,5 +1,5 @@
 {
-  "name": "iot-bridge",
+  "name": "monitoring-udara",
   "version": "1.0.0",
   "main": "backend/src/index.js",
   "type": "module",
