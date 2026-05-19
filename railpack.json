@@ -1,5 +1,6 @@
 {
+  "$schema": "https://railpack.com",
   "deploy": {
-    "startCommand": "node backend/src/index.js"
+    "startCommand": "exec node backend/src/index.js"
   }
 }
