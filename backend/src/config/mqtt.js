@@ -2,22 +2,23 @@ import mqtt from "mqtt";
 import Log from "../models/log.model.js";
 
 const startMqttBridge = () => {
-  const mqttClient = mqtt.connect(process.env.MQTT_URL, {
+  // Optimasi konfigurasi agar hemat konsumsi RAM di server awan Linux
+  const options = {
     username: process.env.MQTT_USERNAME,
     password: process.env.MQTT_PASSWORD,
-    rejectUnauthorized: false, // Wajib untuk server cloud Linux
-    connectTimeout: 30000, // Batas waktu tunggu koneksi 30 detik
-    reconnectPeriod: 5000, // Jika putus, coba hubungkan kembali setiap 5 detik
-  });
+    rejectUnauthorized: false,
+    connectTimeout: 15000,
+    keepalive: 60, // Mengurangi frekuensi ping agar RAM tidak membengkak
+    clean: true, // Memaksa sesi dibersihkan dari memori secara berkala
+  };
+
+  const mqttClient = mqtt.connect(process.env.MQTT_URL, options);
 
   mqttClient.on("connect", () => {
-    console.log("📡 MQTT Bridge Connected to HiveMQ Cloud!");
-    mqttClient.subscribe("esp32/sensor_data", (err) => {
-      if (err) console.error("❌ Gagal subscribe topik:", err.message);
-    });
+    console.log("📡 MQTT Bridge Connected to HiveMQ Cloud via WSS Port 8884!");
+    mqttClient.subscribe("esp32/sensor_data");
   });
 
-  // Wajib menangkap event error agar koneksi tidak meruntuhkan server Node.js Anda
   mqttClient.on("error", (err) => {
     console.error("❌ MQTT Client Error:", err.message);
   });
@@ -27,9 +28,9 @@ const startMqttBridge = () => {
       const dataJson = JSON.parse(message.toString());
       const newLog = new Log(dataJson);
       await newLog.save();
-      console.log("🚀 New data stored to Atlas:", dataJson);
+      console.log("🚀 Data stored successfully!");
     } catch (err) {
-      console.log("❌ Failed to parse MQTT message:", err.message);
+      console.log("❌ Failed to parse message:", err.message);
     }
   });
 };
