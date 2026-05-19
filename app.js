@@ -1,47 +1,25 @@
-const mqtt = require("mqtt");
-const { MongoClient } = require("mongodb");
+require(/backend/MQTT/mqtt); // Jalankan MQTT bridge saat server Express dimulai');
 
-// --- KONFIGURASI MONGODB ATLAS ---
-const mongoUri =
-  "mongodb+srv://merhandes20_db_user:JHUcm4EJOsAj7wsG@tes.6jfn4j3.mongodb.net/?appName=tes";
-const mongoClient = new MongoClient(mongoUri);
+const express = require("express");
+const path = require("path");
+const app = express();
 
-// --- KONFIGURASI HIVEMQ CLOUD ---
-const mqttUrl =
-  "tls://59b6d88568f542958be34b73fcb80600.s1.eu.hivemq.cloud:8883";
-const mqttOptions = {
-  username: "roott",
-  password: "Root12345",
-};
 
-async function startBridge() {
-  try {
-    await mongoClient.connect();
-    console.log("✅ Terhubung ke MongoDB Atlas!");
-    const db = mongoClient.db("monitoring_udara");
-    const collection = db.collection("logs");
+// 1. Sajikan file statis dari hasil build frontend
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-    const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
+// 2. Rute API Anda di sini
+app.get("/api/data", (req, res) => {
+  res.json({ message: "Halo dari backend Express!" });
+});
 
-    mqttClient.on("connect", () => {
-      console.log("✅ Terhubung ke HiveMQ Cloud!");
-      // Disamakan dengan nama topik yang di-publish oleh ESP32 Anda
-      mqttClient.subscribe("esp32/sensor_data");
-    });
+// 3. Alihkan semua rute sisa ke frontend (penting untuk React Router/Vue Router)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+});
 
-    mqttClient.on("message", async (topic, message) => {
-      try {
-        const data = JSON.parse(message.toString());
-        data.timestamp = new Date(); // Tambahkan waktu saat data masuk
-        await collection.insertOne(data);
-        console.log("🚀 Data tersimpan ke Cloud:", data);
-      } catch (err) {
-        console.log("❌ Format data bukan JSON:", message.toString());
-      }
-    });
-  } catch (err) {
-    console.error("❌ Gagal Terhubung:", err);
-  }
-}
-
-startBridge();
+// 4. Pastikan port menggunakan variabel lingkungan dari Railway
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server berjalan di port ${PORT}`);
+});
