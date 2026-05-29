@@ -1,9 +1,9 @@
-import Log from "../models/log.model.js";
+import { Log } from "../models/log.model.js";
 
-const getSensorData = async (req, res) => {
+const getSensorRaw = async (req, res) => {
   try {
     // Mengambil 20 data sensor terbaru, diurutkan berdasarkan waktu terbaru (descending)
-    const data = await Log.find().sort({ timestamp: -1 }).limit(20);
+    const data = await Log.find().sort({ timestamp: -1 });
 
     // Kirim respons sukses dalam bentuk JSON
     return res.status(200).json({
@@ -22,4 +22,4 @@ const getSensorData = async (req, res) => {
   }
 };
 
-export { getSensorData };
+export { getSensorRaw };

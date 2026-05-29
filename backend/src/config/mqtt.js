@@ -1,5 +1,5 @@
 import mqtt from "mqtt";
-import Log from "../models/log.model.js"; // Pastikan menggunakan ekstensi .js
+import { Log } from "../models/log.model.js"; // Pastikan menggunakan ekstensi .js
 
 const startMqttBridge = () => {
   const mqttClient = mqtt.connect(process.env.MQTT_URL, {
@@ -8,7 +8,7 @@ const startMqttBridge = () => {
   });
 
   mqttClient.on("connect", () => {
-    console.log("📡 MQTT Bridge Connected to HiveMQ Cloud!");
+    console.log("MQTT Bridge Connected to HiveMQ Cloud!");
     mqttClient.subscribe("esp32/sensor_data");
   });
 
@@ -22,9 +22,9 @@ const startMqttBridge = () => {
       const newLog = new Log(dataJson);
       await newLog.save();
 
-      console.log("🚀 Data ESP32 berhasil disimpan rata ke MongoDB Atlas!");
+      console.log("Data ESP32 berhasil disimpan rata ke MongoDB Atlas!");
     } catch (err) {
-      console.log("❌ Gagal parsing / simpan data MQTT:", err.message);
+      console.log("Gagal parsing / simpan data MQTT:", err.message);
     }
   });
 };

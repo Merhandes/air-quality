@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+// routes import
 import sensorRoutes from "./routes/sensor.routes.js"; // Import rute sensor nanti
 
 const app = express();
@@ -14,8 +15,8 @@ app.use(express.json());
 // 1. Sajikan folder frontend statis (Mundur 2 folder dari src)
 app.use(express.static(path.join(__dirname, "../../frontend")));
 
-// 2. Daftarkan Rute API Anda
-app.use("/api/sensor", sensorRoutes);
+// routes declaration
+app.use("/api/v1/log", sensorRoutes);
 
 // 3. Fallback Route: Kirim index.html jika user akses rute selain API
 // app.get("*", (req, res) => {

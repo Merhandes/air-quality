@@ -3,69 +3,529 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Air Quality Monitoring</title>
-    <!-- 1. HAPUS jsdelivr, GANTI DENGAN FILE LOKAL INI: -->
+
+    <!-- CSS -->
     <link href="bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="leaflet.css" />
 
-    <!-- 2. HAPUS jsdelivr, GANTI DENGAN FILE LOKAL INI: -->
-    <script src="chart.umd.js"></script>
+    <!-- JS -->
+    <script src="leaflet.js"></script>
+    <script src="alpinejs@3.15.12.js" defer></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #f4f7fb;
+        font-family: Arial, Helvetica, sans-serif;
+        overflow: hidden;
+      }
+
+      .main-wrapper {
+        width: 100%;
+        height: 100vh;
+        padding: 18px;
+      }
+
+      .dashboard-card {
+        width: 100%;
+        height: 100%;
+        background: white;
+        border-radius: 22px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topbar {
+        padding: 18px 24px;
+        border-bottom: 1px solid #ececec;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .topbar h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .topbar p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .legend-container {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+      }
+
+      .legend-box {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+      }
+
+      .info-bar {
+        padding: 14px 24px;
+        background: #f9fafb;
+        border-bottom: 1px solid #ececec;
+
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .info-item {
+        font-size: 13px;
+        color: #4b5563;
+      }
+
+      .info-item b {
+        color: #111827;
+      }
+
+      #map {
+        flex: 1;
+        width: 100%;
+      }
+
+      .leaflet-popup-content {
+        margin: 14px;
+      }
+
+      .popup-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .popup-row {
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+
+      .aqi-badge {
+        padding: 5px 10px;
+        border-radius: 999px;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          overflow: auto;
+        }
+
+        .main-wrapper {
+          height: auto;
+          padding: 10px;
+        }
+
+        .dashboard-card {
+          height: auto;
+          min-height: 100vh;
+        }
+
+        #map {
+          height: 75vh;
+        }
+
+        .topbar h2 {
+          font-size: 22px;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-light">
-    <div class="container my-5">
-      <div class="row">
-        <div class="col-12 text-center mb-4">
-          <h1 class="fw-bold text-dark">💨 Dashboard Kualitas Udara</h1>
-          <p class="text-secondary">
-            Data Real-Time Terhubung via MQTT & MongoDB Atlas
-          </p>
-        </div>
-      </div>
 
-      <!-- Bagian Grafik -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="card shadow-sm border-0 p-4">
-            <h5 class="card-title fw-bold text-secondary mb-3">
-              Grafik Sensor Terbaru
-            </h5>
-            <div style="position: relative; height: 300px; width: 100%">
-              <canvas id="sensorChart"></canvas>
+  <body>
+    <div class="main-wrapper" x-data="sensorMap()" x-init="init()">
+      <div class="dashboard-card">
+        <!-- HEADER -->
+        <div class="topbar">
+          <div>
+            <h2>Air Quality Monitoring</h2>
+
+            <p>
+              Monitoring kualitas udara PM2.5 berbasis IoT di Gading Serpong •
+              <span x-text="currentTime"></span>
+            </p>
+          </div>
+
+          <!-- LEGEND -->
+          <div class="legend-container">
+            <div class="legend-item">
+              <div class="legend-box" style="background: #00e400"></div>
+
+              <span>Baik</span>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-box" style="background: #ffff00"></div>
+
+              <span>Sedang</span>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-box" style="background: #ff0000"></div>
+
+              <span>Tidak Sehat</span>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-box" style="background: #8f3f97"></div>
+
+              <span>Sangat Tidak Sehat</span>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-box" style="background: #7e0023"></div>
+
+              <span>Berbahaya</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Bagian Tabel Data -->
-      <div class="row">
-        <div class="col-12">
-          <div class="card shadow-sm border-0 p-4">
-            <h5 class="card-title fw-bold text-secondary mb-3">
-              Log 20 Data Terakhir
-            </h5>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="table-dark">
-                  <tr>
-                    <th scope="col">Waktu Terbaca</th>
-                    <th scope="col">Nilai Sensor</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="tabel-sensor-body">
-                  <tr>
-                    <td colspan="3" class="text-center text-muted py-4">
-                      Memuat data dari API backend...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        <!-- INFO -->
+        <div class="info-bar">
+          <div class="info-item">
+            <b>PM2.5 Baik:</b>
+            0 - 12 µg/m³
+          </div>
+
+          <div class="info-item">
+            <b>CO2 Normal:</b>
+            400 - 1000 ppm
+          </div>
+
+          <div class="info-item">
+            <b>Suhu Ideal:</b>
+            24°C - 30°C
+          </div>
+
+          <div class="info-item">
+            <b>Kelembapan Ideal:</b>
+            40% - 70%
+          </div>
+
+          <div class="info-item">
+            <b>Update:</b>
+            realtime tiap 10 detik
           </div>
         </div>
+
+        <!-- MAP -->
+        <div id="map"></div>
       </div>
     </div>
 
-    <!-- Hubungkan ke Logika Javascript Frontend Anda -->
-    <script src="script.js"></script>
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("sensorMap", () => ({
+          map: null,
+          markers: [],
+          currentTime: "",
+
+          // =========================
+          // INIT
+          // =========================
+          async init() {
+            this.updateCurrentTime();
+
+            this.initMap();
+
+            await this.fetchMapData();
+
+            // realtime clock
+            setInterval(() => {
+              this.updateCurrentTime();
+            }, 1000);
+
+            // realtime data
+            setInterval(async () => {
+              await this.fetchMapData();
+            }, 10000);
+          },
+
+          // =========================
+          // TIME
+          // =========================
+          updateCurrentTime() {
+            const now = new Date();
+
+            this.currentTime = now.toLocaleString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            });
+          },
+
+          // =========================
+          // MAP
+          // =========================
+          initMap() {
+            this.map = L.map("map", {
+              zoomControl: true,
+            }).setView([-6.2564, 106.6189], 13);
+
+            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              attribution: "&copy; OpenStreetMap",
+            }).addTo(this.map);
+          },
+
+          // =========================
+          // FETCH MAP DATA
+          // =========================
+          async fetchMapData() {
+            try {
+              const res = await fetch("/api/v1/log/map");
+
+              const json = await res.json();
+
+              const data = json?.data || [];
+
+              this.renderMarkers(data);
+            } catch (err) {
+              console.error("Map Error:", err);
+            }
+          },
+
+          // =========================
+          // RENDER MARKER
+          // =========================
+          renderMarkers(data) {
+            // remove old markers
+            this.markers.forEach((m) => {
+              this.map.removeLayer(m);
+            });
+
+            this.markers = [];
+
+            const bounds = [];
+
+            data.forEach((item) => {
+              const lat = Number(item.latitude);
+              const lng = Number(item.longitude);
+
+              if (isNaN(lat) || isNaN(lng)) return;
+
+              const aqi = this.calculateAQI(item.pm2_5);
+
+              const color = this.getAQIColor(aqi);
+
+              const category = this.getCategoryByAQI(aqi);
+
+              const lastUpdate = new Date(item.timestamp).toLocaleString(
+                "id-ID",
+                {
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                }
+              );
+
+              // marker
+              const customIcon = L.divIcon({
+                className: "",
+
+                html: `
+                  <div
+                    style="
+                      background:${color};
+                      min-width:70px;
+                      height:70px;
+                      border-radius:18px;
+                      display:flex;
+                      flex-direction:column;
+                      justify-content:center;
+                      align-items:center;
+                      color:white;
+                      font-weight:bold;
+                      border:3px solid white;
+                      box-shadow:0 4px 14px rgba(0,0,0,0.25);
+                    "
+                  >
+                    <div style="font-size:20px">
+                      ${aqi}
+                    </div>
+
+                    <div style="font-size:11px">
+                      AQI
+                    </div>
+                  </div>
+                `,
+
+                iconSize: [70, 70],
+                iconAnchor: [35, 35],
+              });
+
+              const marker = L.marker([lat, lng], {
+                icon: customIcon,
+              }).addTo(this.map).bindPopup(`
+                <div style="min-width:240px">
+
+                  <div class="popup-title">
+                    Air Quality Monitoring
+                  </div>
+
+                  <div class="popup-row">
+                    <b>AQI:</b>
+                    ${aqi}
+                  </div>
+
+                  <div class="popup-row">
+                    <b>Kategori:</b>
+
+                    <span
+                      class="aqi-badge"
+                      style="background:${color}"
+                    >
+                      ${category}
+                    </span>
+                  </div>
+
+                  <hr>
+
+                  <div class="popup-row">
+                    <b>PM1.0:</b>
+                    ${item.pm1_0 ?? 0}
+                  </div>
+
+                  <div class="popup-row">
+                    <b>PM2.5:</b>
+                    ${item.pm2_5 ?? 0} µg/m³
+                  </div>
+
+                  <div class="popup-row">
+                    <b>PM10:</b>
+                    ${item.pm10_0 ?? 0}
+                  </div>
+
+                  <div class="popup-row">
+                    <b>Suhu:</b>
+                    ${item.temperature ?? 0} °C
+                  </div>
+
+                  <div class="popup-row">
+                    <b>Kelembapan:</b>
+                    ${item.humidity ?? 0} %
+                  </div>
+
+                  <div class="popup-row">
+                    <b>CO2:</b>
+                    ${Math.round(item.co2 ?? 0)} ppm
+                  </div>
+
+                  <hr>
+
+                  <small>
+                    Update terakhir:
+                    ${lastUpdate}
+                  </small>
+
+                </div>
+              `);
+
+              this.markers.push(marker);
+
+              bounds.push([lat, lng]);
+            });
+
+            // auto fit
+            if (bounds.length > 0) {
+              this.map.fitBounds(bounds, {
+                padding: [80, 80],
+              });
+            }
+          },
+
+          // =========================
+          // AQI
+          // =========================
+          calculateAQI(pm25) {
+            pm25 = Number(pm25 || 0);
+
+            if (pm25 <= 12) {
+              return Math.round((50 / 12) * pm25);
+            }
+
+            if (pm25 <= 35.4) {
+              return Math.round(((100 - 51) / (35.4 - 12)) * (pm25 - 12) + 51);
+            }
+
+            if (pm25 <= 55.4) {
+              return Math.round(
+                ((200 - 101) / (55.4 - 35.4)) * (pm25 - 35.4) + 101
+              );
+            }
+
+            if (pm25 <= 150.4) {
+              return Math.round(
+                ((300 - 201) / (150.4 - 55.4)) * (pm25 - 55.4) + 201
+              );
+            }
+
+            return 301;
+          },
+
+          // =========================
+          // CATEGORY
+          // =========================
+          getCategoryByAQI(aqi) {
+            if (aqi <= 50) return "Baik";
+
+            if (aqi <= 100) return "Sedang";
+
+            if (aqi <= 200) return "Tidak Sehat";
+
+            if (aqi <= 300) return "Sangat Tidak Sehat";
+
+            return "Berbahaya";
+          },
+
+          // =========================
+          // COLOR
+          // =========================
+          getAQIColor(aqi) {
+            if (aqi <= 50) return "#00e400";
+
+            if (aqi <= 100) return "#ffff00";
+
+            if (aqi <= 200) return "#ff0000";
+
+            if (aqi <= 300) return "#8f3f97";
+
+            return "#7e0023";
+          },
+        }));
+      });
+    </script>
   </body>
 </html>

@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const logSchema = new mongoose.Schema(
+const logSchema = new Schema(
   {
     pm1_0: Number,
     pm2_5: Number,
@@ -21,5 +21,4 @@ const logSchema = new mongoose.Schema(
   }
 );
 
-const Log = mongoose.model("Log", logSchema);
-export default Log;
+export const Log = mongoose.model("Log", logSchema);
