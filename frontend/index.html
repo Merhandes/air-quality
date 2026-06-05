@@ -8,10 +8,12 @@
 
     <!-- CSS -->
     <link href="bootstrap.min.css" rel="stylesheet" />
+
     <link rel="stylesheet" href="leaflet.css" />
 
     <!-- JS -->
     <script src="leaflet.js"></script>
+
     <script src="alpinejs@3.15.12.js" defer></script>
 
     <style>
@@ -38,8 +40,9 @@
         height: 100%;
         background: white;
         border-radius: 22px;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
         overflow: hidden;
+
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
 
         display: flex;
         flex-direction: column;
@@ -47,37 +50,39 @@
 
       .topbar {
         padding: 18px 24px;
+
         border-bottom: 1px solid #ececec;
 
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 20px;
         flex-wrap: wrap;
+        gap: 18px;
       }
 
       .topbar h2 {
         font-size: 28px;
         font-weight: 700;
-        margin-bottom: 4px;
+        margin-bottom: 5px;
       }
 
       .topbar p {
-        color: #6b7280;
         margin: 0;
+        color: #6b7280;
         font-size: 14px;
       }
 
       .legend-container {
         display: flex;
-        gap: 14px;
         flex-wrap: wrap;
+        gap: 14px;
       }
 
       .legend-item {
         display: flex;
         align-items: center;
         gap: 8px;
+
         font-size: 13px;
       }
 
@@ -89,12 +94,14 @@
 
       .info-bar {
         padding: 14px 24px;
+
         background: #f9fafb;
+
         border-bottom: 1px solid #ececec;
 
         display: flex;
-        gap: 24px;
         flex-wrap: wrap;
+        gap: 22px;
       }
 
       .info-item {
@@ -117,7 +124,7 @@
 
       .popup-title {
         font-size: 16px;
-        font-weight: 700;
+        font-weight: bold;
         margin-bottom: 10px;
       }
 
@@ -145,8 +152,8 @@
         }
 
         .dashboard-card {
-          height: auto;
           min-height: 100vh;
+          height: auto;
         }
 
         #map {
@@ -156,6 +163,48 @@
         .topbar h2 {
           font-size: 22px;
         }
+      }
+
+      .ispu-marker {
+        position: relative;
+        width: 54px;
+        height: 54px;
+      }
+
+      .ispu-pin {
+        width: 54px;
+        height: 54px;
+
+        border-radius: 50% 50% 50% 0;
+
+        transform: rotate(-45deg);
+
+        border: 3px solid white;
+
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .ispu-value {
+        transform: rotate(45deg);
+
+        font-size: 14px;
+        font-weight: bold;
+
+        color: white;
+
+        text-align: center;
+
+        width: 100%;
+      }
+
+      .ispu-value small {
+        display: block;
+        font-size: 9px;
+        line-height: 1;
       }
     </style>
   </head>
@@ -177,63 +226,43 @@
           <!-- LEGEND -->
           <div class="legend-container">
             <div class="legend-item">
-              <div class="legend-box" style="background: #00e400"></div>
-
-              <span>Baik</span>
+              <div class="legend-box" style="background: #3cb371"></div>
+              <span>Baik (0-50)</span>
             </div>
 
             <div class="legend-item">
-              <div class="legend-box" style="background: #ffff00"></div>
-
-              <span>Sedang</span>
+              <div class="legend-box" style="background: #1e90ff"></div>
+              <span>Sedang (51-100)</span>
             </div>
 
             <div class="legend-item">
-              <div class="legend-box" style="background: #ff0000"></div>
-
-              <span>Tidak Sehat</span>
+              <div class="legend-box" style="background: #ffd700"></div>
+              <span>Tidak Sehat (101-200)</span>
             </div>
 
             <div class="legend-item">
-              <div class="legend-box" style="background: #8f3f97"></div>
-
-              <span>Sangat Tidak Sehat</span>
+              <div class="legend-box" style="background: #ff4500"></div>
+              <span>Sangat Tidak Sehat (201-300)</span>
             </div>
 
             <div class="legend-item">
-              <div class="legend-box" style="background: #7e0023"></div>
-
-              <span>Berbahaya</span>
+              <div class="legend-box" style="background: #8b0000"></div>
+              <span>Berbahaya (>300)</span>
             </div>
           </div>
         </div>
 
         <!-- INFO -->
         <div class="info-bar">
-          <div class="info-item">
-            <b>PM2.5 Baik:</b>
-            0 - 12 µg/m³
-          </div>
+          <div class="info-item"><b>ISPU PM2.5:</b> Standar Indonesia</div>
 
-          <div class="info-item">
-            <b>CO2 Normal:</b>
-            400 - 1000 ppm
-          </div>
+          <div class="info-item"><b>CO₂ Normal:</b> 400 - 1000 ppm</div>
 
-          <div class="info-item">
-            <b>Suhu Ideal:</b>
-            24°C - 30°C
-          </div>
+          <div class="info-item"><b>Suhu Ideal:</b> 24°C - 30°C</div>
 
-          <div class="info-item">
-            <b>Kelembapan Ideal:</b>
-            40% - 70%
-          </div>
+          <div class="info-item"><b>Kelembapan Ideal:</b> 40% - 70%</div>
 
-          <div class="info-item">
-            <b>Update:</b>
-            realtime tiap 10 detik
-          </div>
+          <div class="info-item"><b>Realtime:</b> Update tiap 10 detik</div>
         </div>
 
         <!-- MAP -->
@@ -247,12 +276,15 @@
           map: null,
           markers: [],
           currentTime: "",
+          hasFitBounds: false,
 
-          // =========================
+          // =====================
           // INIT
-          // =========================
+          // =====================
           async init() {
             this.updateCurrentTime();
+
+            await this.$nextTick();
 
             this.initMap();
 
@@ -269,26 +301,46 @@
             }, 10000);
           },
 
-          // =========================
+          // =====================
           // TIME
-          // =========================
+          // =====================
           updateCurrentTime() {
             const now = new Date();
 
             this.currentTime = now.toLocaleString("id-ID", {
               hour: "2-digit",
+
               minute: "2-digit",
+
               second: "2-digit",
+
               day: "numeric",
+
               month: "long",
+
               year: "numeric",
             });
           },
 
-          // =========================
-          // MAP
-          // =========================
+          // =====================
+          // INIT MAP
+          // =====================
           initMap() {
+            // remove old map
+            if (this.map) {
+              this.map.remove();
+
+              this.map = null;
+            }
+
+            // reset leaflet
+            const mapContainer = document.getElementById("map");
+
+            if (mapContainer._leaflet_id) {
+              mapContainer._leaflet_id = null;
+            }
+
+            // create map
             this.map = L.map("map", {
               zoomControl: true,
             }).setView([-6.2564, 106.6189], 13);
@@ -298,9 +350,9 @@
             }).addTo(this.map);
           },
 
-          // =========================
-          // FETCH MAP DATA
-          // =========================
+          // =====================
+          // FETCH DATA
+          // =====================
           async fetchMapData() {
             try {
               const res = await fetch("/api/v1/log/map");
@@ -315,11 +367,11 @@
             }
           },
 
-          // =========================
-          // RENDER MARKER
-          // =========================
+          // =====================
+          // MARKERS
+          // =====================
           renderMarkers(data) {
-            // remove old markers
+            // remove old marker
             this.markers.forEach((m) => {
               this.map.removeLayer(m);
             });
@@ -330,6 +382,7 @@
 
             data.forEach((item) => {
               const lat = Number(item.latitude);
+
               const lng = Number(item.longitude);
 
               if (isNaN(lat) || isNaN(lng)) return;
@@ -344,185 +397,201 @@
                 "id-ID",
                 {
                   day: "2-digit",
+
                   month: "short",
+
                   hour: "2-digit",
+
                   minute: "2-digit",
+
                   second: "2-digit",
                 }
               );
 
-              // marker
+              // custom marker
               const customIcon = L.divIcon({
-                className: "",
+                className: "custom-ispu-marker",
 
                 html: `
-                  <div
-                    style="
-                      background:${color};
-                      min-width:70px;
-                      height:70px;
-                      border-radius:18px;
-                      display:flex;
-                      flex-direction:column;
-                      justify-content:center;
-                      align-items:center;
-                      color:white;
-                      font-weight:bold;
-                      border:3px solid white;
-                      box-shadow:0 4px 14px rgba(0,0,0,0.25);
-                    "
-                  >
-                    <div style="font-size:20px">
-                      ${aqi}
-                    </div>
+    <div class="ispu-marker">
+      <div
+        class="ispu-pin"
+        style="background:${color}"
+      >
+        <div class="ispu-value">
+          ${aqi}
+          <small>ISPU</small>
+        </div>
+      </div>
+    </div>
+  `,
 
-                    <div style="font-size:11px">
-                      AQI
-                    </div>
-                  </div>
-                `,
+                iconSize: [54, 54],
 
-                iconSize: [70, 70],
-                iconAnchor: [35, 35],
+                // ujung pin tepat pada koordinat
+                iconAnchor: [13, 40],
+
+                popupAnchor: [0, -40],
               });
 
               const marker = L.marker([lat, lng], {
                 icon: customIcon,
               }).addTo(this.map).bindPopup(`
-                <div style="min-width:240px">
+                          <div style="min-width:240px">
 
-                  <div class="popup-title">
-                    Air Quality Monitoring
-                  </div>
+                            <div class="popup-title">
+                              Air Quality Monitoring
+                            </div>
 
-                  <div class="popup-row">
-                    <b>AQI:</b>
-                    ${aqi}
-                  </div>
+                            <div class="popup-row">
+                              <b>AQI:</b>
+                              ${aqi}
+                            </div>
 
-                  <div class="popup-row">
-                    <b>Kategori:</b>
+                            <div class="popup-row">
+                              <b>Kategori:</b>
 
-                    <span
-                      class="aqi-badge"
-                      style="background:${color}"
-                    >
-                      ${category}
-                    </span>
-                  </div>
+                              <span
+                                class="aqi-badge"
+                                style="background:${color}"
+                              >
+                                ${category}
+                              </span>
+                            </div>
 
-                  <hr>
+                            <hr>
 
-                  <div class="popup-row">
-                    <b>PM1.0:</b>
-                    ${item.pm1_0 ?? 0}
-                  </div>
+                            <div class="popup-row">
+                              <b>PM1.0:</b>
+                              ${item.pm1_0 ?? 0}
+                            </div>
 
-                  <div class="popup-row">
-                    <b>PM2.5:</b>
-                    ${item.pm2_5 ?? 0} µg/m³
-                  </div>
+                            <div class="popup-row">
+                              <b>PM2.5:</b>
+                              ${item.pm2_5 ?? 0}
+                              µg/m³
+                            </div>
 
-                  <div class="popup-row">
-                    <b>PM10:</b>
-                    ${item.pm10_0 ?? 0}
-                  </div>
+                            <div class="popup-row">
+                              <b>PM10:</b>
+                              ${item.pm10_0 ?? 0}
+                            </div>
 
-                  <div class="popup-row">
-                    <b>Suhu:</b>
-                    ${item.temperature ?? 0} °C
-                  </div>
+                            <div class="popup-row">
+                              <b>Suhu:</b>
+                              ${item.temperature ?? 0}
+                              °C
+                            </div>
 
-                  <div class="popup-row">
-                    <b>Kelembapan:</b>
-                    ${item.humidity ?? 0} %
-                  </div>
+                            <div class="popup-row">
+                              <b>Kelembapan:</b>
+                              ${item.humidity ?? 0}
+                              %
+                            </div>
 
-                  <div class="popup-row">
-                    <b>CO2:</b>
-                    ${Math.round(item.co2 ?? 0)} ppm
-                  </div>
+                            <div class="popup-row">
+                              <b>CO2:</b>
+                              ${Math.round(item.co2 ?? 0)}
+                              ppm
+                            </div>
 
-                  <hr>
+                            <hr>
 
-                  <small>
-                    Update terakhir:
-                    ${lastUpdate}
-                  </small>
+                            <small>
+                              Update terakhir:
+                              ${lastUpdate}
+                            </small>
 
-                </div>
-              `);
+                          </div>
+                        `);
 
               this.markers.push(marker);
 
               bounds.push([lat, lng]);
             });
 
-            // auto fit
+            // fit bounds
             if (bounds.length > 0) {
-              this.map.fitBounds(bounds, {
-                padding: [80, 80],
-              });
+              if (bounds.length > 0 && this.markers.length === data.length) {
+                if (!this.hasFitBounds) {
+                  this.map.fitBounds(bounds, {
+                    padding: [80, 80],
+                  });
+
+                  this.hasFitBounds = true;
+                }
+              }
             }
           },
 
-          // =========================
-          // AQI
-          // =========================
+          // =====================
+          // HITUNG ISPU PM2.5
+          // =====================
           calculateAQI(pm25) {
             pm25 = Number(pm25 || 0);
 
-            if (pm25 <= 12) {
-              return Math.round((50 / 12) * pm25);
+            let Ihi, Ilo, BPhi, BPlo;
+
+            if (pm25 <= 15.5) {
+              Ihi = 50;
+              Ilo = 0;
+              BPhi = 15.5;
+              BPlo = 0;
+            } else if (pm25 <= 55.4) {
+              Ihi = 100;
+              Ilo = 51;
+              BPhi = 55.4;
+              BPlo = 15.5;
+            } else if (pm25 <= 150.4) {
+              Ihi = 200;
+              Ilo = 101;
+              BPhi = 150.4;
+              BPlo = 55.4;
+            } else if (pm25 <= 250.4) {
+              Ihi = 300;
+              Ilo = 201;
+              BPhi = 250.4;
+              BPlo = 150.4;
+            } else {
+              Ihi = 500;
+              Ilo = 301;
+              BPhi = 500.4;
+              BPlo = 250.4;
             }
 
-            if (pm25 <= 35.4) {
-              return Math.round(((100 - 51) / (35.4 - 12)) * (pm25 - 12) + 51);
-            }
-
-            if (pm25 <= 55.4) {
-              return Math.round(
-                ((200 - 101) / (55.4 - 35.4)) * (pm25 - 35.4) + 101
-              );
-            }
-
-            if (pm25 <= 150.4) {
-              return Math.round(
-                ((300 - 201) / (150.4 - 55.4)) * (pm25 - 55.4) + 201
-              );
-            }
-
-            return 301;
+            return Math.round(
+              ((Ihi - Ilo) / (BPhi - BPlo)) * (pm25 - BPlo) + Ilo
+            );
           },
 
-          // =========================
-          // CATEGORY
-          // =========================
-          getCategoryByAQI(aqi) {
-            if (aqi <= 50) return "Baik";
+          // =====================
+          // KATEGORI ISPU
+          // =====================
+          getCategoryByAQI(ispu) {
+            if (ispu <= 50) return "Baik";
 
-            if (aqi <= 100) return "Sedang";
+            if (ispu <= 100) return "Sedang";
 
-            if (aqi <= 200) return "Tidak Sehat";
+            if (ispu <= 200) return "Tidak Sehat";
 
-            if (aqi <= 300) return "Sangat Tidak Sehat";
+            if (ispu <= 300) return "Sangat Tidak Sehat";
 
             return "Berbahaya";
           },
 
-          // =========================
-          // COLOR
-          // =========================
-          getAQIColor(aqi) {
-            if (aqi <= 50) return "#00e400";
+          // =====================
+          // WARNA ISPU
+          // =====================
+          getAQIColor(ispu) {
+            if (ispu <= 50) return "#3CB371";
 
-            if (aqi <= 100) return "#ffff00";
+            if (ispu <= 100) return "#1E90FF";
 
-            if (aqi <= 200) return "#ff0000";
+            if (ispu <= 200) return "#FFD700";
 
-            if (aqi <= 300) return "#8f3f97";
+            if (ispu <= 300) return "#FF4500";
 
-            return "#7e0023";
+            return "#8B0000";
           },
         }));
       });
