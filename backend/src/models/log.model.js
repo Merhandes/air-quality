@@ -2,6 +2,11 @@ import mongoose, { Schema } from "mongoose";
 
 const logSchema = new Schema(
   {
+    device_id: {
+      type: String,
+      required: true,
+      index: true,
+    },
     pm1_0: Number,
     pm2_5: Number,
     pm10_0: Number,
