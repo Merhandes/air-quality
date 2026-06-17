@@ -6,14 +6,10 @@
 
     <title>Air Quality Monitoring</title>
 
-    <!-- CSS -->
     <link href="bootstrap.min.css" rel="stylesheet" />
-
     <link rel="stylesheet" href="leaflet.css" />
 
-    <!-- JS -->
     <script src="leaflet.js"></script>
-
     <script src="alpinejs@3.15.12.js" defer></script>
 
     <style>
@@ -212,18 +208,16 @@
   <body>
     <div class="main-wrapper" x-data="sensorMap()" x-init="init()">
       <div class="dashboard-card">
-        <!-- HEADER -->
         <div class="topbar">
           <div>
             <h2>Air Quality Monitoring</h2>
 
             <p>
-              Monitoring kualitas udara PM2.5 berbasis IoT di Gading Serpong •
+              Monitoring kualitas udara di Universitas Multimedia Nusantara •
               <span x-text="currentTime"></span>
             </p>
           </div>
 
-          <!-- LEGEND -->
           <div class="legend-container">
             <div class="legend-item">
               <div class="legend-box" style="background: #3cb371"></div>
@@ -252,7 +246,6 @@
           </div>
         </div>
 
-        <!-- INFO -->
         <div class="info-bar">
           <div class="info-item"><b>ISPU PM2.5:</b> Standar Indonesia</div>
 
@@ -261,11 +254,8 @@
           <div class="info-item"><b>Suhu Ideal:</b> 24°C - 30°C</div>
 
           <div class="info-item"><b>Kelembapan Ideal:</b> 40% - 70%</div>
-
-          <div class="info-item"><b>Realtime:</b> Update tiap 10 detik</div>
         </div>
 
-        <!-- MAP -->
         <div id="map"></div>
       </div>
     </div>
@@ -278,9 +268,6 @@
           currentTime: "",
           hasFitBounds: false,
 
-          // =====================
-          // INIT
-          // =====================
           async init() {
             this.updateCurrentTime();
 
@@ -290,20 +277,15 @@
 
             await this.fetchMapData();
 
-            // realtime clock
             setInterval(() => {
               this.updateCurrentTime();
             }, 1000);
 
-            // realtime data
             setInterval(async () => {
               await this.fetchMapData();
             }, 10000);
           },
 
-          // =====================
-          // TIME
-          // =====================
           updateCurrentTime() {
             const now = new Date();
 
@@ -322,25 +304,19 @@
             });
           },
 
-          // =====================
-          // INIT MAP
-          // =====================
           initMap() {
-            // remove old map
             if (this.map) {
               this.map.remove();
 
               this.map = null;
             }
 
-            // reset leaflet
             const mapContainer = document.getElementById("map");
 
             if (mapContainer._leaflet_id) {
               mapContainer._leaflet_id = null;
             }
 
-            // create map
             this.map = L.map("map", {
               zoomControl: true,
             }).setView([-6.2564, 106.6189], 13);
@@ -350,9 +326,6 @@
             }).addTo(this.map);
           },
 
-          // =====================
-          // FETCH DATA
-          // =====================
           async fetchMapData() {
             try {
               const res = await fetch("/api/v1/log/map");
@@ -367,11 +340,7 @@
             }
           },
 
-          // =====================
-          // MARKERS
-          // =====================
           renderMarkers(data) {
-            // remove old marker
             this.markers.forEach((m) => {
               this.map.removeLayer(m);
             });
@@ -408,7 +377,6 @@
                 }
               );
 
-              // custom marker
               const customIcon = L.divIcon({
                 className: "custom-ispu-marker",
 
@@ -428,7 +396,6 @@
 
                 iconSize: [54, 54],
 
-                // ujung pin tepat pada koordinat
                 iconAnchor: [13, 40],
 
                 popupAnchor: [0, -40],
@@ -510,7 +477,6 @@
               bounds.push([lat, lng]);
             });
 
-            // fit bounds
             if (bounds.length > 0) {
               if (bounds.length > 0 && this.markers.length === data.length) {
                 if (!this.hasFitBounds) {
@@ -524,9 +490,6 @@
             }
           },
 
-          // =====================
-          // HITUNG ISPU PM2.5
-          // =====================
           calculateAQI(pm25) {
             pm25 = Number(pm25 || 0);
 
@@ -564,9 +527,6 @@
             );
           },
 
-          // =====================
-          // KATEGORI ISPU
-          // =====================
           getCategoryByAQI(ispu) {
             if (ispu <= 50) return "Baik";
 
@@ -579,9 +539,6 @@
             return "Berbahaya";
           },
 
-          // =====================
-          // WARNA ISPU
-          // =====================
           getAQIColor(ispu) {
             if (ispu <= 50) return "#3CB371";
 

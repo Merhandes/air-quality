@@ -1,5 +1,5 @@
 import mqtt from "mqtt";
-import { Log } from "../models/log.model.js"; // Pastikan menggunakan ekstensi .js
+import { Log } from "../models/log.model.js";
 
 const startMqttBridge = () => {
   const mqttClient = mqtt.connect(process.env.MQTT_URL, {
@@ -16,7 +16,6 @@ const startMqttBridge = () => {
     try {
       const dataJson = JSON.parse(message.toString());
 
-      // Hapus timestamp kiriman ESP32 jika masih terbawa, agar tidak merusak validasi database
       delete dataJson.timestamp;
 
       const newLog = new Log(dataJson);

@@ -21,7 +21,6 @@ const logSchema = new Schema(
     },
   },
   {
-    // UBAH KE SINI: Mengunci agar Mongoose membaca collection 'monitoring_udara'
     collection: "logs",
   }
 );

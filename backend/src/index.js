@@ -11,7 +11,6 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    // Jalankan MQTT bridge setelah MongoDB terhubung
     startMqttBridge();
 
     app.on("error", (err) => {

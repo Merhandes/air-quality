@@ -5,7 +5,6 @@ import { getSensorHistorical } from "../controllers/sensor.historical.controller
 
 const router = Router();
 
-// Menangani permintaan GET pada endpoint /api/v1/log
 router.get("/", getSensorRaw);
 router.get("/map", getSensorMap);
 router.get("/historical", getSensorHistorical);

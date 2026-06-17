@@ -21,7 +21,6 @@ export const getSensorMap = async (req, res) => {
         },
       },
 
-      // optional: tetap urut terbaru
       { $sort: { timestamp: -1 } },
     ]);
 

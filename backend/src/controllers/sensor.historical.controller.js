@@ -12,12 +12,9 @@ export const getSensorHistorical = async (req, res) => {
     }
 
     const data = await Log.aggregate([
-      // FILTER KOORDINAT
       {
         $match: match,
       },
-
-      // FORMAT TANGGAL
       {
         $addFields: {
           dateOnly: {
@@ -28,8 +25,6 @@ export const getSensorHistorical = async (req, res) => {
           },
         },
       },
-
-      // GROUP PER HARI
       {
         $group: {
           _id: "$dateOnly",
@@ -47,15 +42,12 @@ export const getSensorHistorical = async (req, res) => {
           },
         },
       },
-
-      // SORT
       {
         $sort: {
           _id: 1,
         },
       },
 
-      // LIMIT
       {
         $limit: Number(limit),
       },
